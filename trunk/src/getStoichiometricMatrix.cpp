@@ -94,15 +94,13 @@ int main(int argc, char *argv[])
 
 	cout << "Trying to open " << argv[1] << "..." << flush;
 	d=readSBML(argv[1]);
-  	int errors = d->getNumWarnings() + d->getNumErrors() + d->getNumFatals();
+  	int errors = d->getNumErrors();
 
   	if (errors > 0)
   	{
 		cout << "Error(s): " << errors       << endl;
 		cout << endl;
-    		d->printWarnings(cout);
     		d->printErrors(cout);
-    		d->printFatals(cout);
 		return 1;
   	}
 	else
