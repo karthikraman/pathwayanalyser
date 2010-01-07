@@ -1,6 +1,6 @@
 /***************************************************************************
- *   Copyright (C) 2006 by Karthik Raman   *
- *   karthik@rishi.serc.iisc.ernet.in   *
+ *   Copyright (C) 2010 by Karthik Raman                                   *
+ *   k.raman AT bioc.uzh.ch                                                *
  *                                                                         *
  *   This program is free software; you can redistribute it and/or modify  *
  *   it under the terms of the GNU General Public License as published by  *
@@ -42,7 +42,6 @@ using namespace std;
  *                                                                       *
  * Important WARNING: All arrays passed will be indexed from one onwards *
  * to size. Therefore, declare all arrays with one element extra in each *
-3B
  * dimension. x[0], A[0][i], A[i][0] will all never be used!!!!!!!!!!!!! * 
  *************************************************************************/
 
@@ -51,21 +50,24 @@ using namespace std;
 
 int sp_linprog (double f[], int nz, int iRow[], int jCol[], double dA[], double b[], double x_lb[], double x_ub[], double x[], double *fval, int m, int n) 
 {
-	LPX *lp;
+	glp_prob *lp;
 	
-	lp = lpx_create_prob();
-	lpx_set_prob_name(lp, "linprog");
-	lpx_set_obj_dir(lp, LPX_MIN);
+	lp = glp_create_prob();
+	glp_set_prob_name(lp, "linprog");
+	glp_set_obj_dir(lp, GLP_MIN);
 	
-	lpx_add_rows(lp, m);
+	glp_add_rows(lp, m);
 	for (int i=1; i<=m; i++)
-		lpx_set_row_bnds(lp, i, LPX_FX, x[i], x[i]);
+		glp_set_row_bnds(lp, i, GLP_FX, x[i], x[i]);
 
-	lpx_add_cols(lp, n);
+	glp_add_cols(lp, n);
 	for (int i=1; i<=n; i++)
 	{
-		lpx_set_col_bnds(lp, i, LPX_DB, x_lb[i], x_ub[i]);
-		lpx_set_obj_coef(lp, i, f[i]);
+		if(x_lb[i]!=x_ub[i])
+			glp_set_col_bnds(lp, i, GLP_DB, x_lb[i], x_ub[i]);
+		else
+			glp_set_col_bnds(lp, i, GLP_FX, x_lb[i], x_ub[i]);
+		glp_set_obj_coef(lp, i, f[i]);
 	}
 	
 	#ifdef DEBUG	
@@ -73,53 +75,54 @@ int sp_linprog (double f[], int nz, int iRow[], int jCol[], double dA[], double 
 		printf("ia[%d]=%d;\tja[%d]=%d;\tar[%d]=%f\n",i,iRow[i],i,jCol[i],i,dA[i]);
 	#endif
 	
-	lpx_load_matrix(lp, nz, iRow, jCol, dA);
+	glp_load_matrix(lp, nz, iRow, jCol, dA);
 	
 	#ifdef simplex
-	int exitflag = lpx_simplex(lp);
-	*fval = lpx_get_obj_val(lp);
+	int exitflag = glp_simplex(lp,NULL);
+	*fval = glp_get_obj_val(lp);
 	for (int i=1; i<=n; i++)
-		x[i]=lpx_get_col_prim(lp,i);
+		x[i]=glp_get_col_prim(lp,i);
 	#endif
 	
 	#ifdef interior
-	int exitflag = lpx_interior(lp);
-	*fval = lpx_ipt_obj_val(lp);
+	int exitflag = glp_interior(lp,NULL);
+	*fval = glp_ipt_obj_val(lp);
 	for (int i=1; i<=n; i++)
-		x[i]=lpx_ipt_col_prim(lp,i);
+		x[i]=glp_ipt_col_prim(lp,i);
 	#endif
 	
-	lpx_delete_prob(lp);
-	free(lp);
+	glp_delete_prob(lp);
+	//free(lp);
 	switch(exitflag)
 	{
-		case LPX_E_OK:
+		case 0:
 		{
 			printf("The LP problem has been successfully solved (to optimality).\n");
 			return 0;
 		}
-		case LPX_E_FAULT:
+		case GLP_EFAIL:
 		{
 			printf("The solver can't start the search becuse either the problem has no\n");
 			printf("rows and/or no columns, or some row has non-zero objective coefficient.\n");
 			return 1;
 		}
-		case LPX_E_NOFEAS:
+		/*
+		case GLP_E_NOFEAS:
 		{
 			printf("The LP problem has no feasible (primal or dual) solution.\n");
 			return 2;
-		}
-		case LPX_E_NOCONV:
+		}*/
+		case GLP_ENOCVG:
 		{
 			printf("The search was prematurely terminated due to very slow convergence or divergence.\n");
 			return 3;
 		}
-		case LPX_E_ITLIM:
+		case GLP_EITLIM:
 		{
 			printf("The search was prematurely terminated becase the simplex iterations limit has been exceeded.\n");
 			return 4;
 		}
-		case LPX_E_INSTAB:
+		case GLP_EINSTAB:
 		{
 			printf("The search was prematurely terminated due to numerical instability on solving Newtonian system.\n");
 			return 5;
