@@ -1,7 +1,7 @@
 CC = g++
 CFLAGS = -c 
 OFLAGS = -o
-OPTFLAGS = -O3 -Wall -Wno-deprecated -g
+OPTFLAGS = -O2 -Wall -Wno-deprecated
 #GLPK_LIB = -L /usr/local/lib
 #GLPK_INC = -I /usr/local/include
 SBML_LIB = -L /usr/local/lib
@@ -17,16 +17,18 @@ INC_OPTIONS = ${GLPK_INC} ${SBML_INC} ${XERCES_INC} ${OOQP_INC}
 all:	PA_MoMA PA_FBA getStoich
 
 PA_FBA:	sp_linprog.o PA_FBA.h PA_FBA.C
-	${CC} ${OPTFLAGS} PA_FBA.C ${INC_OPTIONS} ${LIB_OPTIONS} sp_linprog.o -lglpk /usr/local/lib/libsbml.so -lxerces-c ${OFLAGS} ../bin/PA_FBA
+	#${CC} ${OPTFLAGS} PA_FBA.C ${INC_OPTIONS} ${LIB_OPTIONS} sp_linprog.o -lglpk /usr/local/lib/libsbml.so -lxerces-c ${OFLAGS} ../bin/PA_FBA
+	${CC} ${OPTFLAGS} PA_FBA.C sp_linprog.o -lglpk /usr/local/lib/libsbml.so -lxerces-c ${OFLAGS} ../bin/PA_FBA
 
 PA_MoMA: sp_linprog.o PA_MoMA.h PA_MoMA.C
 	${CC} ${OPTFLAGS} PA_MoMA.C ${INC_OPTIONS} ${LIB_OPTIONS} sp_linprog.o -lglpk -o ../bin/PA_MoMA -lsbml -looqpgensparse -looqpsparse  -looqpgondzio -looqpbase -lblas /home/karthik/OOQP/OOQP/extras/MA27/libMA27.a -lg2c -lgfortran
 
 sp_linprog.o:	sp_linprog.C sp_linprog.h 
-	${CC} ${OPTFLAGS} ${CFLAGS} ${INC_OPTIONS} ${LIB_OPTIONS} sp_linprog.C
+	#${CC} ${OPTFLAGS} ${CFLAGS} ${INC_OPTIONS} ${LIB_OPTIONS} sp_linprog.C
+	${CC} ${OPTFLAGS} ${CFLAGS} sp_linprog.C
 
 getStoich:	getStoichiometricMatrix.cpp
-	${CC} ${OPTFLAGS} getStoichiometricMatrix.cpp -lsbml -lxerces-c -O3 ${INC_OPTIONS} ${LIB_OPTIONS} -o ../bin/getStoich
+	${CC} ${OPTFLAGS} getStoichiometricMatrix.cpp -lsbml -O2 -o ../bin/getStoich
 
 clean: 
 	rm -f *.o 
