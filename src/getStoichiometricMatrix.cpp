@@ -6,10 +6,7 @@
  * $Id: getStoichiometricMatrix.cpp$
  * $Source: $ 
  */
-/* Copyright 2003 California Institute of Technology and
- * Japan Science and Technology Corporation.
- *
- * This library is free software; you can redistribute it and/or modify it
+/* This library is free software; you can redistribute it and/or modify it
  * under the terms of the GNU Lesser General Public License as published
  * by the Free Software Foundation; either version 2.1 of the License, or
  * any later version.
@@ -42,8 +39,7 @@
  *	Bangalore - 560 012
  *	INDIA
  *	
- *	mailto: karthik AT rishi.serc.iisc.ernet.in
- *	
+ *	mailto: k.raman AT bioc.uzh.ch
  */
 
 #include <iostream>
