@@ -1,0 +1,3 @@
+PathwayAnalyser (PA) is a tool for systems biologists for analysis of metabolic pathways, particularly by Flux Balance Analysis and ODE simulation. PA interfaces with the GNU Linear Programming Toolkit (GLPK) for linear programming, as well as with Taylor for performing high precision simulations (e.g. using GMP). OOQP is used for quadratic programming/MoMA. It can give a comprehensive report on gene deletions from the Systems Biology Markup Language (SBML) Model input. It is currently a command-line tool but a GUI may be added soon.
+
+It is written in C++ and uses libSBML and GLPK. PA is meant for linux (excl. cygwin at the moment) but it is planned that it will be usable in all platforms in the future.
